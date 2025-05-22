@@ -8,7 +8,7 @@ from nomad.datamodel import EntryArchive
 from nomad.datamodel import ArchiveSection
 from nomad.datamodel.hdf5 import HDF5Reference
 from nomad.datamodel.data import EntryData
-
+from nomad.datamodel.metainfo.eln import BasicEln
 
 import numpy as np
 
@@ -31,6 +31,16 @@ class ScopeFoundryMeasurement(ArchiveSection):
     datasets = SubSection(section=ScopeFoundryMeasurementData, repeats=True, description='H5 Datasets collected during measurement')
 
 class ScopeFoundryH5(EntryData):
+    time_id = Quantity(type=float)
+    unique_id = Quantity(type=str, a_eln={'overview':True}, a_display={'visible': True})
+    uuid_str = Quantity(type=str)
+    app_name = Quantity(type=str, a_eln={'overview':True}, a_display={'visible': True})
+    app_settings = SubSection(section=SFLoggedQuantity, repeats=True, description='list of configuration for app')
+    hardware = SubSection(section=ScopeFoundryHW, repeats=True, description='Hardware Components', a_display={'visible': True})
+    measurement = SubSection(section=ScopeFoundryMeasurement, repeats=True, description='Measurements (usually only one per h5)',a_eln={'overview':True},a_display={'visible': True})
+
+class ScopeFoundryH5ELN(ScopeFoundryH5,BasicEln):
+
     h5_file = Quantity(
         type=str,
         description='HDF5 file',
@@ -38,12 +48,6 @@ class ScopeFoundryH5(EntryData):
             "component": "FileEditQuantity",
         },
     )
-
-    app_name = Quantity(type=str, a_eln={'overview':True}, a_display={'visible': True})
-    app_settings = SubSection(section=SFLoggedQuantity, repeats=True, description='list of configuration for app')
-    hardware = SubSection(section=ScopeFoundryHW, repeats=True, description='Hardware Components', a_display={'visible': True})
-    measurement = SubSection(section=ScopeFoundryMeasurement, repeats=True, description='Measurements (usually only one per h5)',a_eln={'overview':True},a_display={'visible': True})
-
 
     def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger'):
         """
@@ -61,7 +65,10 @@ class ScopeFoundryH5(EntryData):
             #raise(IOError(f"{f}"))
             with h5py.File(f,'r') as H:
                 h = self
-                self.app_name = H['app'].attrs['name']
+                h.time_id = H.attrs['time_id']
+                h.unique_id = H.attrs['unique_id']
+                h.uuid_str = H.attrs['uuid']
+                h.app_name = H['app'].attrs['name']
                 h.app_settings = settingsH5_to_NomadLQlist(H['app/settings'])
                 h.hardware = []
                 for HW in H['hardware'].values():
