@@ -111,7 +111,8 @@ where = ["src"]
 
 [project.entry-points.'nomad.plugin']
 parser_entry_point = "nomad_scopefoundry.parsers:parser_entry_point"
-schema_package_entry_point = "nomad_scopefoundry.schema_packages:schema_package_entry_point"
+#schema_package_entry_point = "nomad_scopefoundry.schema_packages:schema_package_entry_point"
+scopefoundry_h5_schema_entry_point = "nomad_scopefoundry.schema_packages:scopefoundry_h5_schema_entry_point"
 normalizer_entry_point = "nomad_scopefoundry.normalizers:normalizer_entry_point"
 app_entry_point = "nomad_scopefoundry.apps:app_entry_point"
 example_upload_entry_point = "nomad_scopefoundry.example_uploads:example_upload_entry_point"
