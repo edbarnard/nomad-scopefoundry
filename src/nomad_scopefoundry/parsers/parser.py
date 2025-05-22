@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 from nomad.config import config
 from nomad.datamodel.metainfo.workflow import Workflow
 from nomad.parsing.parser import MatchingParser
+from nomad.datamodel.context import ServerContext
 
 configuration = config.get_plugin_entry_point(
     'nomad_scopefoundry.parsers:parser_entry_point'
@@ -46,10 +47,15 @@ class ScopeFoundryH5Parser(MatchingParser):
         import h5py
         import os
 
+        data_file = mainfile.split('/')[-1]
+        if isinstance(archive.m_context, ServerContext):
+            data_file = mainfile.split('/raw/', 1)[1]
+
         with open(mainfile, 'rb') as f:
-            #raise(IOError(f"{f}"))
             with h5py.File(f,'r') as H:
                 h = ScopeFoundryH5()
+                h.h5_file = data_file
+                h.name = data_file + "_" + H.attrs['unique_id'][:13]
                 h.time_id = H.attrs['time_id']
                 h.unique_id = H.attrs['unique_id']
                 h.uuid_str = H.attrs['uuid']
@@ -69,6 +75,6 @@ class ScopeFoundryH5Parser(MatchingParser):
                         if not isinstance(hData, h5py.Dataset): continue
                         nData = ScopeFoundryMeasurementData(name = name)
                         nM.datasets.append(nData)
-                        nData.data = f"{os.path.split(mainfile)[-1]}#{hData.name}"
+                        nData.data = f"{data_file}#{hData.name}"
 
         archive.data = h

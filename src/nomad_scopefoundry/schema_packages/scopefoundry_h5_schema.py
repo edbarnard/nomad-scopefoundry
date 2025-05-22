@@ -31,6 +31,15 @@ class ScopeFoundryMeasurement(ArchiveSection):
     datasets = SubSection(section=ScopeFoundryMeasurementData, repeats=True, description='H5 Datasets collected during measurement')
 
 class ScopeFoundryH5(EntryData):
+
+    h5_file = Quantity(
+        type=str,
+        description='HDF5 file',
+        # a_eln={
+        #     "component": "FileEditQuantity",
+        # },
+    )
+    name = Quantity(type=str, a_eln={'overview':True})
     time_id = Quantity(type=float)
     unique_id = Quantity(type=str, a_eln={'overview':True}, a_display={'visible': True})
     uuid_str = Quantity(type=str)
@@ -39,15 +48,8 @@ class ScopeFoundryH5(EntryData):
     hardware = SubSection(section=ScopeFoundryHW, repeats=True, description='Hardware Components', a_display={'visible': True})
     measurement = SubSection(section=ScopeFoundryMeasurement, repeats=True, description='Measurements (usually only one per h5)',a_eln={'overview':True},a_display={'visible': True})
 
+'''
 class ScopeFoundryH5ELN(ScopeFoundryH5,BasicEln):
-
-    h5_file = Quantity(
-        type=str,
-        description='HDF5 file',
-        a_eln={
-            "component": "FileEditQuantity",
-        },
-    )
 
     def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger'):
         """
@@ -85,7 +87,7 @@ class ScopeFoundryH5ELN(ScopeFoundryH5,BasicEln):
                         nData = ScopeFoundryMeasurementData(name = name)
                         nM.datasets.append(nData)
                         nData.data = f"{self.h5_file}#{hData.name}"
-
+'''
 
 def settingsH5_to_NomadLQlist(sH5):
     lqs = []
